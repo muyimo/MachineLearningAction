@@ -11,6 +11,7 @@
 from numpy import *
 import operator # 运算符模块
 import matplotlib.pyplot as plt
+from os import listdir #列出目录的文件名
 
 def createDataSet():
     group = array([
@@ -117,6 +118,51 @@ def classifyPersion():
                                  normMat, datingLabels, 3)
     print("你对这个人的喜欢程度：",resultList[classifierResult - 1])
 
+
+#-----------手写识别系统-----------
+
+# 格式化图像为向量
+def img2vector(filename):
+    returnVect = zeros((1,1024)) # 1x1024向量
+    fr = open(filename)
+    for i in range(32): #32x32的二进制图像
+        lineStr = fr.readline()
+        for j in range(32):
+            returnVect[0,32*i+j] = int(lineStr[j])
+    return returnVect
+# 手写数字识别系统测试
+def handwritingClassTest():
+    hwLabels = []
+    trainingFileList = listdir('digits/trainingDigits')
+    m = len(trainingFileList)
+    trainingMat = zeros((m, 1024)) #参数shape维度
+    for i in range(m):
+        fileNameStr = trainingFileList[i] # 0_0.txt
+        # print(fileNameStr)
+        fileStr = fileNameStr.split('.')[0]  #0_0
+        classNumStr = int(fileStr.split('_')[0]) #对应的数字
+        # print('-------classNum', classNumStr)
+        hwLabels.append(classNumStr) #加入标签中
+        trainingMat[i, :] = img2vector('digits/trainingDigits/%s'
+                                       %fileNameStr) # 把图像转换为向量
+    testFileList = listdir('digits/testDigits')
+    errorCount = 0.0
+    mTest = len(testFileList)
+    for i in range(mTest):
+        fileNameStr = testFileList[i]
+        fileStr = fileNameStr.split('.')[0]
+        classNumStr = int(fileStr.split('_')[0])
+        vectorUnderTest = img2vector('digits/testDigits/%s' % fileNameStr)
+        classifierResult = classify0(vectorUnderTest,\
+                                     trainingMat, hwLabels, 3)
+        print("the classifier came back with: %d,\
+                the real answer is : %d " \
+              % (classifierResult, classNumStr))
+        if (classifierResult != classNumStr): errorCount += 1.0
+    print("\n total number of errors is: %d" %errorCount)
+    print("\n total error tate is : %f" % (errorCount/float(mTest)))
+
+
 def test():
 
     # group, labels = createDataSet()
@@ -127,7 +173,11 @@ def test():
     # autoNorm(dataDataMat)
 
     # datingClassTest()
-    classifyPersion()
+    # classifyPersion()
+    # vect = img2vector('digits/testDigits/0_13.txt') #32x32图像转换为1x1024向量
+    # print(vect[0, 0:111])
+    handwritingClassTest()
+
 
 if __name__ == '__main__':
 
