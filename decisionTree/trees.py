@@ -132,7 +132,8 @@ def test():
     bestFeature = chooseBestFeatureToSplit(myDat) #第i个特征
     print(bestFeature)
 
-
+def test1():
+    pass
 
 
 if __name__ == '__main__':
